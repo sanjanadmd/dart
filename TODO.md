@@ -1,7 +1,7 @@
 # TODO
 
 - [ ] Extract entities
-  - [ ] arrow
+  - [x] arrow
   - [ ] board
 
 # FEATURES

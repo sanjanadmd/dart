@@ -2,12 +2,15 @@
   const px = (value) => value + 'px';
 
   const didArrowHitBoard = (arrow, board) => {
-    const { top: arrowY, left: arrowX } = arrow.position;
     const { top: boardStart, left: boardX } = board.position;
 
     const boardEnd = boardStart + board.height;
 
-    return !(arrowX > boardX || arrowY < boardStart || arrowY > boardEnd);
+    return !(
+      arrow.isBefore(boardX)
+      || arrow.isBelow(boardStart)
+      || arrow.isAbove(boardEnd)
+    );
   };
 
   const drawBoard = (board, parentId) => {
@@ -34,20 +37,8 @@
     arrowElement.style.boxSizing = 'border-box';
   };
 
-  const moveArrowLeft = (arrow) => {
-    arrow.position.left -= arrow.speed.dx;
-  };
-
-  const moveUp = arrow => {
-    arrow.position.top -= 2;
-  };
-
-  const moveDown = arrow => {
-    arrow.position.top += 2;
-  };
-
   const didArrowCrossExtreme = (arrow, extreme = 1) =>
-    arrow.position.left < extreme;
+    !arrow.isBefore(extreme);
 
   const shootArrow = (arrow, board) => {
     const intervalId = setInterval(() => {
@@ -63,9 +54,18 @@
         return;
       }
 
-      moveArrowLeft(arrow);
-      drawArrow(arrow);
+      arrow.moveLeft();
+      drawArrow(arrow.getInfo());
     }, 3);
+  };
+
+  const displayResult = (message) => {
+    const container = document.getElementById('container');
+    const result = document.createElement('div');
+    result.id = 'result';
+    container.appendChild(result);
+
+    result.innerText = message;
   };
 
   const main = () => {
@@ -79,30 +79,21 @@
       width: 0
     };
 
-    const arrow = {
-      id: 'arrow',
-      position: {
-        top: 305,
-        left: 400
-      },
-      speed: {
-        dx: 5
-      }
-    };
+    const arrow = new Arrow('arrow', { top: 100, left: 400 }, { dx: 4 });
 
     drawBoard(board, 'view');
-    drawArrow(arrow);
+    drawArrow(arrow.getInfo());
 
     document.onkeydown = (event) => {
       const keys = {
-        ArrowUp: moveUp,
-        ArrowDown: moveDown
+        ArrowUp: () => arrow.moveUp(),
+        ArrowDown: () => arrow.moveDown()
       };
 
       const move = keys[event.key];
       if (move) {
-        move(arrow);
-        drawArrow(arrow);
+        move();
+        drawArrow(arrow.getInfo());
       }
     };
 
@@ -113,13 +104,47 @@
     };
   };
 
-  const displayResult = (message) => {
-    const container = document.getElementById('container');
-    const result = document.createElement('div');
-    result.id = 'result';
-    container.appendChild(result);
+  class Arrow {
+    #id;
+    #position;
+    #speed;
+    constructor(id, position, speed) {
+      this.#id = id;
+      this.#position = position;
+      this.#speed = speed;
+    }
 
-    result.innerText = message;
+    moveLeft() {
+      this.#position.left -= this.#speed.dx;
+    }
+
+    moveUp() {
+      this.#position.top -= 2;
+    }
+
+    moveDown() {
+      this.#position.top += 2;
+    }
+
+    isBefore(ordinate) {
+      return this.#position.left > ordinate;
+    }
+
+    isAbove(abscissa) {
+      return this.#position.top > abscissa;
+    }
+
+    isBelow(abscissa) {
+      return this.#position.top < abscissa;
+    }
+
+    getInfo() {
+      return {
+        id: this.#id,
+        position: { top: this.#position.top, left: this.#position.left },
+        speed: { dx: this.#speed.dx }
+      };
+    }
   }
 
   window.onload = main;
