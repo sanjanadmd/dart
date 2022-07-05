@@ -3,12 +3,17 @@
 - [ ] Extract entities
   - [ ] arrow
   - [ ] board
-- [ ] Check the arrow and board collision
-- [ ] Stop if arrow collides the board
-- [ ] Log the all results in the same page
+
+# FEATURES
+
+- [ ] Add score board
+- [ ] Change arrow direction
+- [ ] 'Next shoot' button
 
 # DONE
 
+- [x] Stop if arrow collides the board
+- [x] Check the arrow and board collision
 - [x] Make a movable arrow
 - [x] Draw arrow
 - [x] Start the movement of arrow by an event

@@ -1,19 +1,13 @@
-const onload = () => {
+(function () {
   const px = (value) => value + 'px';
 
   const didArrowHitBoard = (arrow, board) => {
     const { top: arrowY, left: arrowX } = arrow.position;
     const { top: boardStart, left: boardX } = board.position;
+
     const boardEnd = boardStart + board.height;
 
-    if (arrowX > boardX) {
-      return false;
-    }
-    if (arrowY < boardStart || arrowY > boardEnd) {
-      return false;
-    }
-    return true;
-
+    return !(arrowX > boardX || arrowY < boardStart || arrowY > boardEnd);
   };
 
   const drawBoard = (board, parentId) => {
@@ -40,34 +34,37 @@ const onload = () => {
     arrowElement.style.boxSizing = 'border-box';
   };
 
-  const moveArrowHorizontally = (arrow) => {
+  const moveArrowLeft = (arrow) => {
     arrow.position.left -= arrow.speed.dx;
   };
 
-  const moveArrowVertically = (event, arrow) => {
-    if (event.keyCode === 38) {
-      arrow.position.top -= 2;
-    }
-    if (event.keyCode === 40) {
-      arrow.position.top += 2;
-    }
-    drawArrow(arrow);
+  const moveUp = arrow => {
+    arrow.position.top -= 2;
   };
 
-  const shootArrow = (arrow, board, result) => {
-    const intervalId = setInterval(() => {
-      moveArrowHorizontally(arrow);
-      drawArrow(arrow);
+  const moveDown = arrow => {
+    arrow.position.top += 2;
+  };
 
+  const didArrowCrossExtreme = (arrow, extreme = 1) =>
+    arrow.position.left < extreme;
+
+  const shootArrow = (arrow, board) => {
+    const intervalId = setInterval(() => {
       if (didArrowHitBoard(arrow, board)) {
         clearInterval(intervalId);
-        result.innerText = 'won';
+        displayResult('won');
+        return;
       }
 
-      if (arrow.position.left <= 0) {
+      if (didArrowCrossExtreme(arrow)) {
         clearInterval(intervalId);
-        result.innerText = 'lost';
+        displayResult('lost');
+        return;
       }
+
+      moveArrowLeft(arrow);
+      drawArrow(arrow);
     }, 3);
   };
 
@@ -96,21 +93,34 @@ const onload = () => {
     drawBoard(board, 'view');
     drawArrow(arrow);
 
-    document.onkeydown = (event) => moveArrowVertically(event, arrow);
+    document.onkeydown = (event) => {
+      const keys = {
+        ArrowUp: moveUp,
+        ArrowDown: moveDown
+      };
+
+      const move = keys[event.key];
+      if (move) {
+        move(arrow);
+        drawArrow(arrow);
+      }
+    };
 
     const shoot = document.getElementById('shoot');
     shoot.onclick = () => {
       document.onkeydown = null;
-
-      const container = document.getElementById('container');
-      const result = document.createElement('div');
-      result.id = 'result';
-      container.appendChild(result);
-
-      shootArrow(arrow, board, result);
+      shootArrow(arrow, board);
     };
   };
 
-  main();
-};
-window.onload = onload;
+  const displayResult = (message) => {
+    const container = document.getElementById('container');
+    const result = document.createElement('div');
+    result.id = 'result';
+    container.appendChild(result);
+
+    result.innerText = message;
+  }
+
+  window.onload = main;
+})();
