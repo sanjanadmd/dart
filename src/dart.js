@@ -1,16 +1,15 @@
 const onload = () => {
   const px = (value) => value + 'px';
 
-  const isInBoard = (arrow, board) => {
+  const didArrowHitBoard = (arrow, board) => {
     const { top } = arrow.position;
     const start = board.position.top;
     const end = board.position.top + board.height;
 
     if (top < start || top > end) {
-      alert('lost!');
-      return;
+      return false;
     }
-    alert('Won');
+    return true;
   };
 
   const drawBoard = (board, parentId) => {
@@ -28,7 +27,7 @@ const onload = () => {
     parent.appendChild(boardElement);
   };
 
-  const updateArrowPosition = (arrow) => {
+  const drawArrow = (arrow) => {
     const arrowElement = document.getElementById(arrow.id);
     const { left, top } = arrow.position;
 
@@ -37,7 +36,7 @@ const onload = () => {
     arrowElement.style.top = px(top);
   };
 
-  const moveArrow = (arrow) => {
+  const moveArrowHorizontally = (arrow) => {
     if (arrow.position.left <= 100) {
       arrow.speed.dx = 0;
       return;
@@ -45,11 +44,34 @@ const onload = () => {
     arrow.position.left -= arrow.speed.dx;
   };
 
+  const moveArrowVertically = (event, arrow) => {
+    if (event.keyCode == '38') {
+      arrow.position.top -= 2;
+    }
+    if (event.keyCode == '40') {
+      arrow.position.top += 2;
+    }
+    drawArrow(arrow);
+  };
+
+  const leaveArrow = (arrow, board) => {
+    const intervalId = setInterval(() => {
+      moveArrowHorizontally(arrow);
+      drawArrow(arrow);
+
+      if (arrow.speed.dx === 0) {
+        clearInterval(intervalId);
+        const message = didArrowHitBoard(arrow, board) ? 'You WON!' : 'You LOST!';
+        alert(message);
+      }
+    }, 3);
+  };
+
   const main = () => {
     const arrow = {
       id: 'arrow',
       position: {
-        top: 301,
+        top: 200,
         left: 400
       },
       speed: {
@@ -67,18 +89,22 @@ const onload = () => {
       width: 0
     };
 
-    const intervalId = setInterval(() => {
-      moveArrow(arrow);
-      updateArrowPosition(arrow);
-
-      if (arrow.speed.dx === 0) {
-        clearInterval(intervalId);
-        isInBoard(arrow, board);
-      }
-    }, 3);
-
     drawBoard(board, 'container');
-  }
+    drawArrow(arrow);
+
+    const setArrowPosition = (event) => {
+      moveArrowVertically(event, arrow);
+    };
+
+    document.addEventListener('keydown', setArrowPosition);
+
+    const start = document.getElementById('start');
+    start.onclick = () => {
+      document.removeEventListener('keydown', setArrowPosition);
+      leaveArrow(arrow, board);
+    };
+  };
+
   main();
-}
+};
 window.onload = onload;
