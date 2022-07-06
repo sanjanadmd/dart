@@ -1,8 +1,6 @@
 # TODO
 
-- [ ] Extract entities
-  - [x] arrow
-  - [ ] board
+- [ ] Remove hard-coded styles of arrow
 
 # FEATURES
 
@@ -12,6 +10,8 @@
 
 # DONE
 
+- [x] Extract board entity
+- [x] Extract arrow entity
 - [x] Stop if arrow collides the board
 - [x] Check the arrow and board collision
 - [x] Make a movable arrow
