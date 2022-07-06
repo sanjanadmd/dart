@@ -75,19 +75,23 @@
 
   const px = (value) => value + 'px';
 
-  const drawBoard = (board, parentId) => {
+  const createBoard = (view, board) => {
     const boardElement = document.createElement('div');
     boardElement.id = board.id;
+    boardElement.className = 'board';
     boardElement.style.top = px(board.position.top);
     boardElement.style.left = px(board.position.left);
-    boardElement.style.width = 0;
-    boardElement.style.height = board.height;
-    boardElement.style.border = '1px solid red';
-    boardElement.style.boxSizing = 'border-box';
-    boardElement.style.position = 'relative';
+    boardElement.style.width = px(board.width);
+    boardElement.style.height = px(board.height);
 
-    const parent = document.getElementById(parentId);
-    parent.appendChild(boardElement);
+    view.appendChild(boardElement);
+  };
+
+  const createArrow = (view, { id }) => {
+    const arrow = document.createElement('div');
+    arrow.id = id;
+    arrow.className = 'arrow';
+    view.appendChild(arrow);
   };
 
   const drawArrow = (arrow) => {
@@ -105,22 +109,23 @@
   const didArrowCrossExtreme = (arrow, extreme = 1) =>
     arrow.isAfter(extreme);
 
+  const isGameRunning = (arrow, board) =>
+    !(didArrowHitBoard(arrow, board) || didArrowCrossExtreme(arrow));
+
+  const getGameResult = (arrow, board) =>
+    didArrowHitBoard(arrow, board) ? 'won' : 'lost';
+
   const shootArrow = (arrow, board) => {
     const intervalId = setInterval(() => {
-      if (didArrowHitBoard(arrow, board)) {
-        clearInterval(intervalId);
-        displayResult('won');
+      if (isGameRunning(arrow, board)) {
+        arrow.moveLeft();
+        drawArrow(arrow.getInfo());
         return;
       }
 
-      if (didArrowCrossExtreme(arrow)) {
-        clearInterval(intervalId);
-        displayResult('lost');
-        return;
-      }
-
-      arrow.moveLeft();
-      drawArrow(arrow.getInfo());
+      const gameResult = getGameResult(arrow, board);
+      displayResult(gameResult);
+      clearInterval(intervalId);
     }, 3);
   };
 
@@ -134,10 +139,14 @@
   };
 
   const main = () => {
-    const board = new Board('board', { top: 100, left: 100 }, 200, 0);
-    const arrow = new Arrow('arrow', { top: 300, left: 400 }, { dx: 4 });
+    const view = document.getElementById('view');
 
-    drawBoard(board.getInfo(), 'view');
+    const board = new Board('board', { top: 100, left: 100 }, 200, 0);
+    const arrow = new Arrow('arrow', { top: 100, left: 400 }, { dx: 4 });
+
+    createBoard(view, board.getInfo());
+    createArrow(view, arrow.getInfo());
+
     drawArrow(arrow.getInfo());
 
     document.onkeydown = (event) => {

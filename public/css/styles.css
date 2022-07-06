@@ -1,0 +1,25 @@
+body {
+  margin: 0 auto;
+  width: 960px;
+}
+
+.arrow {
+  width: 50px;
+  height: 0px;
+  border: 1px solid black;
+  position: absolute;
+}
+
+.board {
+  border: 1px solid red;
+  box-sizing: border-box;
+  position: absolute;
+}
+
+#view {
+  width: 500px;
+  aspect-ratio: 1;
+  background-color: #f2f7f7;
+  margin-top: 100px;
+  position: relative;
+}

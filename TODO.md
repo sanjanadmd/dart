@@ -1,15 +1,18 @@
 # TODO
 
-- [ ] Remove hard-coded styles of arrow
+- [ ] Extract 'game' entity
 
 # FEATURES
 
+- [ ] Make target movable
 - [ ] Add score board
 - [ ] Change arrow direction
 - [ ] 'Next shoot' button
 
 # DONE
 
+- [x] Refactor 'shootArrow'
+-~~ [ ] Remove hard-coded styles of arrow~~
 - [x] Extract board entity
 - [x] Extract arrow entity
 - [x] Stop if arrow collides the board
